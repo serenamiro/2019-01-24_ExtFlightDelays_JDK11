@@ -1,8 +1,11 @@
 package it.polito.tdp.extflightdelays;
 
 import java.net.URL;
+import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
 
+import it.polito.tdp.extflightdelays.model.Adiacenza;
 import it.polito.tdp.extflightdelays.model.Model;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -28,7 +31,7 @@ public class FXMLController {
     private Button btnCreaGrafo;
 
     @FXML
-    private ComboBox<?> cmbBoxStati;
+    private ComboBox<String> cmbBoxStati;
 
     @FXML
     private Button btnVisualizzaVelivoli;
@@ -44,17 +47,52 @@ public class FXMLController {
 
     @FXML
     void doCreaGrafo(ActionEvent event) {
-
+    	model.creaGrafo();
+    	cmbBoxStati.getItems().addAll(model.getStati());
     }
 
     @FXML
     void doSimula(ActionEvent event) {
-
+    	String s = cmbBoxStati.getValue();
+    	if(s==null) {
+    		txtResult.appendText("Selezionare uno stato dal menu a tendina.\n");
+    		return;
+    	} else {
+    			try {
+    				
+    				Integer T = Integer.parseInt(txtT.getText());
+    				Integer G = Integer.parseInt(txtG.getText());
+    				Map<String, Integer> mappa = model.doSimulazione(s, T, G);
+    				if(mappa!=null) {
+    					for(String res : mappa.keySet()) {
+    						txtResult.appendText(res+" "+mappa.get(res)+"\n");
+    					}
+    				} else {
+    					txtResult.appendText("Errore.\n");
+    				}
+    			
+    			} catch(NumberFormatException e) {
+    				e.printStackTrace();
+    				txtResult.appendText("Scrivi un numero intero.\n");
+    		}
+    	}
     }
 
     @FXML
     void doVisualizzaVelivoli(ActionEvent event) {
-
+    	String s = cmbBoxStati.getValue();
+    	if(s==null) {
+    		txtResult.appendText("Selezionare uno stato dal menu a tendina.\n");
+    		return;
+    	} else {
+    		List<Adiacenza> adiacenze = model.getVicini(s);
+    		if(s!=null) {
+    			txtResult.appendText("VICINI: \n");
+    			for(Adiacenza a : adiacenze) {
+    				txtResult.appendText(a.toString()+"\n");
+    			}
+    		}
+    	}
     }
 
     @FXML
